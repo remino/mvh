@@ -1,0 +1,46 @@
+#!/bin/sh
+# mvh
+
+VERSION='1.0.0'
+
+mvh_main() {
+	trap _exit INT TERM
+
+	scriptinv="$( basename "$0" )"
+	scriptpath="$( readlink -f "$0" )"
+	scriptname="$( basename "$scriptpath" )"
+
+	[ $# -lt 1 ] && cmd=help
+	[ -z "$cmd" ] && cmd=process
+
+	case "$cmd" in
+		help|process) "mvh_$cmd" "$@" ;;
+	esac
+
+	_exit
+}
+
+mvh_help() {
+cat <<USAGE
+$scriptname $VERSION
+
+USAGE: $scriptinv [<options>] <mv_args> <src1> [<src2>...]
+
+Move files and directories to current directory using mv.
+
+Options are passed to mv:
+
+USAGE
+mv
+}
+
+mvh_process() {
+	echo "$@" . | xargs mv
+}
+
+_exit() {
+	exit_code=$?
+	exit $exit_code
+}
+
+mvh_main "$@"
